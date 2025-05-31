@@ -2,14 +2,14 @@
 CREATE SCHEMA IF NOT EXISTS `BodegaAurrera` DEFAULT CHARACTER SET utf8mb4;
 USE `BodegaAurrera`;
 
--- Tabla categorias (modificada según tus datos)
+-- Tabla categorias (actualizada)
 CREATE TABLE IF NOT EXISTS `categorias` (
   `id_categorias` INT NOT NULL,
   `nombre` VARCHAR(50) NOT NULL,
   PRIMARY KEY (`id_categorias`)
 ) ENGINE=InnoDB;
 
--- Tabla proveedores (modificada según tus datos)
+-- Tabla proveedores (actualizada)
 CREATE TABLE IF NOT EXISTS `proveedores` (
   `id_proveedor` INT NOT NULL,
   `nombre` VARCHAR(50) NOT NULL,
@@ -19,14 +19,14 @@ CREATE TABLE IF NOT EXISTS `proveedores` (
   PRIMARY KEY (`id_proveedor`)
 ) ENGINE=InnoDB;
 
--- Tabla unidad (modificada según tus datos)
+-- Tabla unidad (actualizada)
 CREATE TABLE IF NOT EXISTS `unidad` (
   `id_unidad` INT NOT NULL,
   `nombre` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`id_unidad`)
 ) ENGINE=InnoDB;
 
--- Tabla articulos (modificada según tus datos)
+-- Tabla articulos (actualizada)
 CREATE TABLE IF NOT EXISTS `articulos` (
   `codigo` CHAR(13) NOT NULL,
   `nombre` VARCHAR(70) NOT NULL,
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS `articulos` (
   `precio` FLOAT NOT NULL,
   `costo` FLOAT NOT NULL,
   `existencias` INT NOT NULL,
-  `reorden` VARCHAR(45),
+  `reorden` VARCHAR(45) NOT NULL,
   `id_categorias` INT NOT NULL,
   `id_proveedor` INT NOT NULL,
   `id_unidad` INT NOT NULL,
@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS `articulos` (
     ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
--- Tabla clientes (con email opcional)
+-- Tabla clientes (sin cambios)
 CREATE TABLE IF NOT EXISTS `clientes` (
   `telefono` CHAR(10) NOT NULL,
   `nombre` VARCHAR(75) NOT NULL,
@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS `clientes` (
   PRIMARY KEY (`telefono`)
 ) ENGINE=InnoDB;
 
--- Tabla empleado
+-- Tabla empleado (sin cambios)
 CREATE TABLE IF NOT EXISTS `empleado` (
   `id_empleado` INT NOT NULL,
   `nombre` VARCHAR(45) NOT NULL,
@@ -78,7 +78,7 @@ CREATE TABLE IF NOT EXISTS `empleado` (
   PRIMARY KEY (`id_empleado`)
 ) ENGINE=InnoDB;
 
--- Tabla venta
+-- Tabla venta (sin cambios)
 CREATE TABLE IF NOT EXISTS `venta` (
   `id_venta` INT NOT NULL,
   `fecha` DATE NOT NULL,
@@ -101,7 +101,76 @@ CREATE TABLE IF NOT EXISTS `venta` (
     ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
--- Tabla facturas (con todos los campos obligatorios)
+-- Tabla compra (sin cambios)
+CREATE TABLE IF NOT EXISTS `compra` (
+  `id_compra` INT NOT NULL,
+  `folio` VARCHAR(20) NOT NULL,
+  `tipodoc` VARCHAR(20) NOT NULL,
+  `fecha` DATE NOT NULL,
+  `importe` FLOAT NOT NULL,
+  `id_proveedor` INT NOT NULL,
+  PRIMARY KEY (`id_compra`),
+  INDEX `fk_compra_proveedores1_idx` (`id_proveedor`),
+  CONSTRAINT `fk_compra_proveedores1`
+    FOREIGN KEY (`id_proveedor`)
+    REFERENCES `proveedores` (`id_proveedor`)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+-- Tabla detalles_comp (sin cambios)
+CREATE TABLE IF NOT EXISTS `detalles_comp` (
+  `id_compra` INT NOT NULL,
+  `codigo` CHAR(13) NOT NULL,
+  `cantidad` INT NOT NULL,
+  `costo` FLOAT NOT NULL,
+  PRIMARY KEY (`id_compra`, `codigo`),
+  INDEX `fk_detalles_comp_compra1_idx` (`id_compra`),
+  INDEX `fk_detalles_comp_articulos1_idx` (`codigo`),
+  CONSTRAINT `fk_detalles_comp_compra1`
+    FOREIGN KEY (`id_compra`)
+    REFERENCES `compra` (`id_compra`)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE,
+  CONSTRAINT `fk_detalles_comp_articulos1`
+    FOREIGN KEY (`codigo`)
+    REFERENCES `articulos` (`codigo`)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+-- Tabla detalles_venta (sin cambios)
+CREATE TABLE IF NOT EXISTS `detalles_venta` (
+  `id_venta` INT NOT NULL,
+  `codigo` CHAR(13) NOT NULL,
+  `cantidad` INT NOT NULL,
+  `precio` FLOAT NOT NULL,
+  PRIMARY KEY (`id_venta`, `codigo`),
+  INDEX `fk_detalles_venta_venta1_idx` (`id_venta`),
+  INDEX `fk_detalles_venta_articulos1_idx` (`codigo`),
+  CONSTRAINT `fk_detalles_venta_venta1`
+    FOREIGN KEY (`id_venta`)
+    REFERENCES `venta` (`id_venta`)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE,
+  CONSTRAINT `fk_detalles_venta_articulos1`
+    FOREIGN KEY (`codigo`)
+    REFERENCES `articulos` (`codigo`)
+    ON DELETE RESTRICT
+    ON UPDATE CASCADE
+) ENGINE=InnoDB;
+
+-- Tabla ventas_pausadas (sin cambios)
+CREATE TABLE IF NOT EXISTS `ventas_pausadas` (
+  `id_pausa` INT AUTO_INCREMENT PRIMARY KEY,
+  `telefono_cliente` VARCHAR(10),
+  `cliente_info` TEXT,
+  `productos` TEXT,
+  `id_empleado` INT,
+  `fecha_pausa` DATETIME DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB;
+
+-- Tabla facturas (sin cambios)
 CREATE TABLE IF NOT EXISTS `facturas` (
   `id_factura` INT AUTO_INCREMENT PRIMARY KEY,
   `id_venta` INT NOT NULL,
@@ -112,22 +181,12 @@ CREATE TABLE IF NOT EXISTS `facturas` (
   FOREIGN KEY (`id_venta`) REFERENCES `venta`(`id_venta`)
 ) ENGINE=InnoDB;
 
--- Tabla ventas_pausadas
-CREATE TABLE IF NOT EXISTS `ventas_pausadas` (
-  `id_pausa` INT AUTO_INCREMENT PRIMARY KEY,
-  `telefono_cliente` VARCHAR(10),
-  `cliente_info` TEXT,
-  `productos` TEXT,
-  `id_empleado` INT,
-  `fecha_pausa` DATETIME DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB;
-
 -- =============================================
--- INSERCIÓN DE DATOS SEGÚN TUS REQUERIMIENTOS
+-- INSERCIÓN DE DATOS ACTUALIZADOS
 -- =============================================
 
--- Insertar unidades
-INSERT INTO `unidad` (id_unidad, nombre) VALUES 
+-- Insertar unidades (actualizadas)
+INSERT INTO `unidad` (`id_unidad`, `nombre`) VALUES 
 (1, 'pieza'),
 (2, 'litro'),
 (3, 'gramo'),
@@ -136,8 +195,8 @@ INSERT INTO `unidad` (id_unidad, nombre) VALUES
 (6, 'sobre'),
 (7, 'unidad');
 
--- Insertar categorias
-INSERT INTO `categorias` (id_categorias, nombre) VALUES
+-- Insertar categorias (actualizadas)
+INSERT INTO `categorias` (`id_categorias`, `nombre`) VALUES
 (1, 'Lacteos'),
 (2, 'Salsas y Aderezos'),
 (3, 'Bebidas'),
@@ -149,12 +208,12 @@ INSERT INTO `categorias` (id_categorias, nombre) VALUES
 (9, 'Condimentos'),
 (10, 'Galletas y Snacks');
 
--- Insertar proveedor generico
-INSERT INTO `proveedores` (id_proveedor, nombre, telefono, email, direccion)
+-- Insertar proveedor generico (actualizado)
+INSERT INTO `proveedores` (`id_proveedor`, `nombre`, `telefono`, `email`, `direccion`)
 VALUES (1, 'Proveedor Generico', '5551234567', 'contacto@proveedor.com', 'Calle Falsa 123');
 
--- Insertar articulos con descripcion, precio y stock
-INSERT INTO `articulos` (codigo, nombre, descripcion, precio, costo, existencias, reorden, id_categorias, id_proveedor, id_unidad) VALUES
+-- Insertar articulos (actualizados)
+INSERT INTO `articulos` (`codigo`, `nombre`, `descripcion`, `precio`, `costo`, `existencias`, `reorden`, `id_categorias`, `id_proveedor`, `id_unidad`) VALUES
 ('7501020565959', 'Leche semidescremada Lala 1 lt', 'Leche semidescremada marca Lala presentacion 1 litro', 22.50, 18.00, 50, '20', 1, 1, 2),
 ('7501052472195', 'Catsup Clemente Jacques 220g', 'Catsup de la marca Clemente Jacques en presentacion de 220 gramos', 18.00, 12.50, 100, '30', 2, 1, 3),
 ('7501040090028', 'Yoghurt Yoplait Batido Natural 1Kg', 'Yoghurt natural batido marca Yoplait en presentacion de 1 kilogramo', 35.00, 28.00, 60, '15', 1, 1, 4),
@@ -171,24 +230,18 @@ INSERT INTO `articulos` (codigo, nombre, descripcion, precio, costo, existencias
 ('7500326818271', 'Proteina Vegetal Chai Falcon 1.170Kg', 'Proteina vegetal marca Chai Falcon presentacion 1.170 kilogramos', 150.00, 120.00, 35, '10', 8, 1, 4),
 ('7506495017668', 'Te zacate de limon Great Value 18 sobres - 27 g', 'Te de zacate de limon marca Great Value con 18 sobres, peso 27 gramos', 25.00, 20.00, 60, '20', 5, 1, 6),
 ('7506495017675', 'Te manzanilla Great Value 18 Uds - 21.6 g', 'Te de manzanilla marca Great Value con 18 unidades, peso 21.6 gramos', 25.00, 20.00, 60, '20', 5, 1, 6),
-('7502254496262', 'Te Doblett Verde con Frambuesa 19.2g', 'Te Doblett sabor verde con frambuesa presentacion 19.2 gramos', 28.00, 22.00, 70, '25', 5, 1, 3),
+('7502254496262', 'Te Doblett Verde con Frambuesa 19.2g', 'Te Doblett sabor verde con frambuesa presentacion 19.2 gramos', 28.00, 22.00, 70, '20', 5, 1, 3),
 ('7500533002951', 'Members Mark Te & Infusiones 200 Uds 240g', 'Te e infusiones Members Mark 200 unidades, peso 240 gramos', 90.00, 75.00, 40, '10', 5, 1, 3),
 ('7500478018406', 'Galletas Marias 720 g', 'Galletas Maria presentacion 720 gramos', 30.00, 25.00, 100, '30', 10, 1, 3),
 ('7501952966398', 'Chile Miguelito el original en polvo - 250 g', 'Chile Miguelito en polvo presentacion 250 gramos', 18.00, 15.00, 120, '40', 9, 1, 3),
 ('7501069213811', 'Harina para Hot Cakes Tradicionales 800g', 'Harina para hot cakes tradicional en presentacion de 800 gramos', 22.00, 18.00, 85, '25', 6, 1, 3);
 
--- Cliente general (requerido para el sistema)
-INSERT INTO `clientes` (telefono, nombre, direccion, rfc, email) 
+-- Insertar cliente general (requerido para el sistema)
+INSERT INTO `clientes` (`telefono`, `nombre`, `direccion`, `rfc`, `email`) 
 VALUES ('0000000000', 'CLIENTE GENERAL', 'SIN DIRECCIÓN', 'XAXX010101000', 'general@tienda.com');
 
--- Datos de ejemplo para clientes
-INSERT INTO `clientes` (telefono, nombre, direccion, rfc, email) VALUES 
-('5512345678', 'Juan Pérez', 'Calle Falsa 123', 'PERJ800101ABC', 'juan.perez@email.com'),
-('5567890123', 'María López', 'Avenida Siempre Viva 456', 'LOML850202DEF', 'maria.lopez@email.com'),
-('5545678901', 'Carlos Sánchez', 'Boulevard Los Ángeles 789', 'SACC900303GHI', 'carlos.sanchez@email.com');
-
--- Datos de ejemplo para empleados
-INSERT INTO `empleado` (id_empleado, nombre, genero, puesto) VALUES 
+-- Insertar empleados de ejemplo (sin cambios)
+INSERT INTO `empleado` (`id_empleado`, `nombre`, `genero`, `puesto`) VALUES 
 (1, 'Ana García', 'F', 'administrador'),
 (2, 'Pedro Martínez', 'M', 'encargado'),
 (3, 'Luisa Rodríguez', 'F', 'cajero');
